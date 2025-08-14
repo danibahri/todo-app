@@ -49,12 +49,38 @@ document.addEventListener("DOMContentLoaded", function () {
     container.append(textContainer);
     container.setAttribute("id", `todo-${todoObject.id}`);
 
-    function addTaskToCompleted(todoId) {
-      const todoItem = todos.find((item) => item.id === todoId);
-      if (todoItem) {
-        todoItem.isCompleted = true;
-        document.dispatchEvent(new Event(RENDER_EVENT));
+    function findTodo(todoId) {
+      for (const todo of todos) {
+        if (todo.id === todoId) return todo;
       }
+      return null;
+    }
+
+    function addTaskToCompleted(todoId) {
+      // const todoItem = todos.find((item) => item.id === todoId);
+      // if (todoItem) {
+      //   todoItem.isCompleted = true;
+      //   document.dispatchEvent(new Event(RENDER_EVENT));
+      // }
+
+      const todoIndex = findTodo(todoId);
+      if (todoIndex == null) return;
+      todoIndex.isCompleted = true;
+      document.dispatchEvent(new Event(RENDER_EVENT));
+    }
+
+    function undoTaskFromCompleted(todoId) {
+      const todoIndex = findTodo(todoId);
+      if (todoIndex == null) return;
+      todoIndex.isCompleted = false;
+      document.dispatchEvent(new Event(RENDER_EVENT));
+    }
+
+    function removeTaskFromCompleted(todoId) {
+      const todoIndex = findTodo(todoId);
+      if (todoIndex == null) return;
+      todos.splice(todos.indexOf(todoIndex), 1);
+      document.dispatchEvent(new Event(RENDER_EVENT));
     }
 
     if (todoObject.isCompleted) {
@@ -92,9 +118,16 @@ document.addEventListener("DOMContentLoaded", function () {
     const uncompletedTODOList = document.getElementById("todos");
     uncompletedTODOList.innerHTML = "";
 
+    const completeTODOList = document.getElementById("completed-todos");
+    completeTODOList.innerHTML = "";
+
     for (const todoItem of todos) {
       const todoElement = makeTodo(todoItem);
-      uncompletedTODOList.append(todoElement);
+      if (!todoItem.isCompleted) {
+        uncompletedTODOList.append(todoElement);
+      } else {
+        completeTODOList.append(todoElement);
+      }
     }
   });
 
